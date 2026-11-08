@@ -1334,11 +1334,13 @@ V.hdA[i]={f=f,us=us,on=false,t0=0,tgt=nil,s=1}
 end
 V.vig = {}
 for i,def in ipairs({{UDim2.new(1,0,0,110),UDim2.new(0,0,0,0),90},{UDim2.new(1,0,0,110),UDim2.new(0,0,1,-110),270},{UDim2.new(0,110,1,0),UDim2.new(0,0,0,0),0},{UDim2.new(0,110,1,0),UDim2.new(1,-110,0,0),180}}) do
-local f=V.new("Frame",{BackgroundColor3=Color3.fromRGB(255,30,30),BorderSizePixel=0,Visible=false,Size=def[1],Position=def[2],BackgroundTransparency=1},V.gui)
-V.new("UIGradient",{Rotation=def[3],Transparency=NumberSequence.new({NumberSequenceKeypoint.new(0,0),NumberSequenceKeypoint.new(1,1)})},f)
-V.vig[i]=f
+    local f=V.new("Frame",{BackgroundColor3=Color3.fromRGB(255,30,30),BorderSizePixel=0,Visible=false,Size=def[1],Position=def[2],BackgroundTransparency=1},V.gui)
+    V.new("UIGradient",{Rotation=def[3],Transparency=NumberSequence.new({NumberSequenceKeypoint.new(0,0),NumberSequenceKeypoint.new(1,1)})},f)
+    V.vig[i]=f
 end
 V.hdPrev, V.hdVig, V.hdMv, V.lVig, V.vigOn = nil, 0, nil, -1, false
+
+-- HIT DIRECTION
 V.hdFrame = function(now,dt)
 local cm=workspace.CurrentCamera
 local ms=V.cfg.hd and V.getMe() or nil
@@ -1394,7 +1396,7 @@ end
 end
 end
 
--- HEALER HELP: low HP + losing -> red screen + EAT GOLDEN APPLE
+-- HEALER HELP
 V.heal=V.new("CanvasGroup",{AnchorPoint=Vector2.new(.5,.5),Position=UDim2.new(.5,0,.5,80),Size=UDim2.new(0,340,0,40),BackgroundTransparency=1,GroupTransparency=1,BorderSizePixel=0},V.gui)
 V.tx(V.heal,{Position=UDim2.new(0,0,0,0),Size=UDim2.new(1,0,0,22),TextSize=20,Align=Enum.TextXAlignment.Center})('<font color="#FF5555">EAT GOLDEN APPLE!</font>')
 V.setHeal2=V.tx(V.heal,{Position=UDim2.new(0,0,0,24),Size=UDim2.new(1,0,0,12),TextSize=10,Align=Enum.TextXAlignment.Center,Color=V.GRY})
@@ -1428,7 +1430,7 @@ V.spKey=key pcall(function() V.VIM:SendKeyEvent(true,key,false,game) end) V.spOn
 end
 end
 
--- NO FRIEND DAMAGE (blocks remotes that mention a friend)
+-- NO FRIEND DAMAGE
 V.frIn=function(v,d)
 local t=typeof(v)
 if t=="Instance" then
@@ -1453,8 +1455,7 @@ return old(self,...)
 end))
 end)
 
--- HUD STYLES: Target HUD (Classic = hearts, Modern = card, Aesthetic = glass pill)
--- NOTE: outlines live on an inner frame, so they fade together with the CanvasGroup (fixes the stray outline bug)
+-- HUD STYLES
 V.th2=V.new("CanvasGroup",{AnchorPoint=Vector2.new(.5,0),Position=UDim2.new(.5,0,.6,0),Size=UDim2.new(0,236,0,58),BackgroundColor3=V.c3(18,18,24),BackgroundTransparency=.12,GroupTransparency=1,BorderSizePixel=0},V.gui)
 V.new("UICorner",{CornerRadius=UDim.new(0,10)},V.th2)
 local sf2=V.new("Frame",{BackgroundTransparency=1,BorderSizePixel=0,Position=UDim2.fromOffset(1,1),Size=UDim2.new(1,-2,1,-2)},V.th2)
@@ -2025,37 +2026,26 @@ V.fbtn=V.slotBtn("FRND",54,function() V.toggleAimFriend() end)
 V.applyTheme()
 
 V.C(V.UIS.InputBegan:Connect(function(i,gp)
-    if V.capId then
-        if i.UserInputType==Enum.UserInputType.Keyboard then
-            local set=V.capSet 
-            V.capId,V.capSet=nil,nil
-            if i.KeyCode==Enum.KeyCode.Escape then
-            elseif i.KeyCode==Enum.KeyCode.Backspace or i.KeyCode==Enum.KeyCode.Delete then 
-                if set then set("None") end 
-                V.save()
-            else 
-                if set then set(i.KeyCode.Name) end 
-                V.save() 
-            end
-            V.render()
-        end
-        return
-    end
-    
-    if gp or i.UserInputType~=Enum.UserInputType.Keyboard then return end
-    local k=i.KeyCode.Name
-    
-    for id,fn in pairs(V.ACT) do
-        if V.getKey(id)==k then pcall(fn) end
-    end
-    
-    for _,m in ipairs(V.M) do
-        if m.en and V.getKey("t_"..m.en)==k then
-            V.cfg[m.en] = not V.cfg[m.en]
-            V.save() 
-            V.updWM()
-            V.notify(m.name..": "..(V.cfg[m.en] and "ON" or "OFF"))
-            if V.menuOpen then V.render() end
-        end
-    end
+if V.capId then
+if i.UserInputType==Enum.UserInputType.Keyboard then
+local set=V.capSet V.capId,V.capSet=nil,nil
+if i.KeyCode==Enum.KeyCode.Escape then
+elseif i.KeyCode==Enum.KeyCode.Backspace or i.KeyCode==Enum.KeyCode.Delete then if set then set("None") end V.save()
+else if set then set(i.KeyCode.Name) end V.save() end
+V.render()
+end
+return
+end
+if gp or i.UserInputType~=Enum.UserInputType.Keyboard then return end
+local k=i.KeyCode.Name
+for id,fn in pairs(V.ACT) do
+if V.getKey(id)==k then pcall(fn) end
+end
+for _,m in ipairs(V.M) do
+if m.en and V.getKey("t_"..m.en)==k then
+V.cfg[m.en]=not V.cfg[m.en] V.save() V.updWM()
+V.notify(m.name..": "..(V.cfg[m.en] and "ON" or "OFF"))
+if V.menuOpen then V.render() end
+end
+end
 end))
